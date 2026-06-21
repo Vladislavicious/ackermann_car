@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 import math
@@ -8,16 +9,12 @@ import numpy as np
 from .road import Road
 
 
-# ---------------------------------------------------------------------------
-
 class CorridorLimits:
 
 
     def __init__(self, road: Road, half_width: float = 1.75) -> None:
         self._road = road
         self.half_width = half_width
-
-    # ------------------------------------------------------------------
 
     def boundary_points(
         self, step: int = 1
@@ -60,10 +57,7 @@ class CorridorLimits:
         return float(overshoot ** 2) * 100.0   # large coefficient → hard constraint
 
 
-# ---------------------------------------------------------------------------
-
 if __name__ == "__main__":
-    from road import Road   # direct run
     road = Road()
     corridor = CorridorLimits(road, half_width=1.75)
     left, right = corridor.boundary_points()
