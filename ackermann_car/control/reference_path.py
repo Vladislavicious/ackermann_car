@@ -82,3 +82,13 @@ class ReferencePath:
     def xy_array(self) -> np.ndarray:
         """Return Nx2 centre-line for plotting."""
         return self._road.xy_array()
+
+
+if __name__ == "__main__":
+    rp = ReferencePath(ref_speed=2.5)
+    lat, hdg, refs = rp.get_reference(x=0.0, y=0.3, yaw=0.0, horizon=5)
+    print(f"lat_err={lat:.4f} m, heading_err={hdg:.4f} rad")
+    print("Reference points:")
+    for i, (rx, ry, rh, rs) in enumerate(refs):
+        print(f"  [{i}] x={rx:.2f} y={ry:.2f} h={rh:.4f} v_ref={rs:.2f}")
+    print(f"Speed ref at (0,0): {rp.speed_reference(0,0):.3f} m/s")
