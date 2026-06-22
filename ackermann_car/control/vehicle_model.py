@@ -70,7 +70,10 @@ class KinematicBicycleModel:
         x_next   = x   + v * math.cos(psi + beta) * dt
         y_next   = y   + v * math.sin(psi + beta) * dt
         psi_next = psi + (v / self.p.wheelbase) * math.tan(delta) * math.cos(beta) * dt
-        v_next   = float(np.clip(v + a* dt, self.p.min_speed, self.p.max_speed))
+        v_next   = float(np.clip(v + a * dt, self.p.min_speed, self.p.max_speed))
+
+        # Wrap yaw to (-π, π]
+        psi_next = (psi_next + math.pi) % (2 * math.pi) - math.pi
 
         return VehicleState(x=x_next, y=y_next, yaw=psi_next, v=v_next)
 
@@ -78,10 +81,20 @@ class KinematicBicycleModel:
         self,
         initial_state: VehicleState,
         controls: List[VehicleControl],
-        dt: float,
+        dt: float = 0.1,
     ) -> List[VehicleState]:
 
         states = [initial_state]
         for ctrl in controls:
             states.append(self.step(states[-1], ctrl, dt=dt))
         return states
+
+
+if __name__ == "__main__":
+    model = KinematicBicycleModel()
+    s0    = VehicleState(x=0.0, y=0.0, yaw=0.0, v=2.0)
+    ctrl  = VehicleControl(acceleration=0.0, steering=0.15)
+    traj  = model.predict_trajectory(s0, [ctrl] * 20, dt=0.1)
+    print("Predicted trajectory (x, y, yaw, v):")
+    for i, s in enumerate(traj):
+        print(f"  t={i*0.1:.1f}s  x={s.x:.3f}  y={s.y:.3f}  yaw={s.yaw:.4f}  v={s.v:.2f}")
