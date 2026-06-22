@@ -48,6 +48,10 @@ ackermann_car/
     sim_server.py                   ← ZeroMQ REP server (Terminal 1)
     disturbance_model.py            ← wind / noise disturbance injector
   control/
+    vehicle_model.py                ← kinematic bicycle model
+    reference_path.py               ← road-to-MPC reference generator
+    mpc_controller.py               ← MPC with SLSQP (NOT PD/PID)
+    run_mpc_client.py               ← ZeroMQ REQ client + logging
   scripts/
     generate_mujoco_road_xml.py     ← S-curve road XML generator
   results/
@@ -77,3 +81,19 @@ https://github.com/google-deepmind/mujoco
 
 
 ---
+
+## Run Instructions
+
+Open **two terminals** from the repository root.
+
+**Terminal 1 — Start the simulation server:**
+```bash
+python ackermann_car/sim/sim_server.py
+```
+Output: `[sim_server] Listening on tcp://*:5555`
+
+**Terminal 2 — Start the MPC client:**
+```bash
+python ackermann_car/control/run_mpc_client.py
+```
+The MPC loop runs for 430 control steps (~43 s), then saves `results/trajectory_log.csv`.
