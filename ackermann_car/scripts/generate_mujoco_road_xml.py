@@ -176,6 +176,8 @@ def build_xml(road: Road, corridor: CorridorLimits) -> str:
     return xml
 
 
+
+
 if __name__ == "__main__":
     road     = Road()
     corridor = CorridorLimits(road, half_width=HALF_ROAD_W)
