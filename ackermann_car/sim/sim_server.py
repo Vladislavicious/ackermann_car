@@ -1,5 +1,3 @@
-
-
 from __future__ import annotations
 
 import json
@@ -16,30 +14,30 @@ from ackermann_car.sim.ackermann_env import AckermannEnv
 from ackermann_car.sim.road import Road
 from ackermann_car.sim.corridor_limits import CorridorLimits
 
-ZMQ_ADDR      = "tcp://*:5555"
-DT            = 0.01
-USE_DISTURB   = False
-TARGET_RT     = True
+ZMQ_ADDR = "tcp://*:5555"
+DT = 0.01
+USE_DISTURB = False
+TARGET_RT = True
 
 
 def main() -> None:
-    env      = AckermannEnv(use_disturbances=USE_DISTURB)
-    road     = Road()
+    env = AckermannEnv(use_disturbances=USE_DISTURB)
+    road = Road()
     corridor = CorridorLimits(road, half_width=1.75)
-    state    = env.reset(x=0.0, y=0.0, yaw=0.0, v=0.0)
+    state = env.reset(x=0.0, y=0.0, yaw=0.0, v=0.0)
 
     print(f"[sim_server] Backend  : {env.backend}")
     print(f"[sim_server] Road pts : {len(road.waypoints)}")
     print(f"[sim_server] Road len : {road.total_length:.1f} m")
 
-    ctx    = zmq.Context()
+    ctx = zmq.Context()
     socket = ctx.socket(zmq.REP)
     socket.bind(ZMQ_ADDR)
     print(f"[sim_server] Listening on {ZMQ_ADDR}")
     print("[sim_server] Waiting for MPC client …")
 
     step_count = 0
-    t_sim      = 0.0
+    t_sim = 0.0
 
     try:
         while True:
@@ -56,7 +54,7 @@ def main() -> None:
                 reply = dict(state)
 
             elif cmd == "step":
-                velocity_cmd   = float(msg.get("velocity", 0.0))
+                velocity_cmd = float(msg.get("velocity", 0.0))
                 steering_angle = float(msg.get("steering", 0.0))
 
                 t_wall_start = time.perf_counter()
@@ -65,7 +63,7 @@ def main() -> None:
                     steering_angle=steering_angle,
                     sim_time=t_sim,
                 )
-                t_sim      += DT
+                t_sim += DT
                 step_count += 1
 
                 if TARGET_RT:
@@ -75,7 +73,7 @@ def main() -> None:
                         time.sleep(sleep_t)
 
                 lat_err = road.lateral_error(state["x"], state["y"])
-                inside  = corridor.is_inside(state["x"], state["y"])
+                inside = corridor.is_inside(state["x"], state["y"])
 
                 reply = dict(state)
                 reply["lateral_error"] = lat_err
@@ -98,9 +96,9 @@ def main() -> None:
                     yaw=float(msg.get("yaw", 0.0)),
                     v=float(msg.get("v", 0.0)),
                 )
-                t_sim      = 0.0
+                t_sim = 0.0
                 step_count = 0
-                reply      = dict(state)
+                reply = dict(state)
                 print("[sim_server] Environment reset.")
 
             else:

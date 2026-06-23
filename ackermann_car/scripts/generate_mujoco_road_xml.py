@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import math
@@ -13,15 +12,23 @@ from ackermann_car.sim.corridor_limits import CorridorLimits
 
 OUTPUT_PATH = _REPO_ROOT / "ackermann_car" / "sim" / "mujoco_ackermann_generated.xml"
 
-SEG_HALF_LEN  = 0.22    # half-length of each road stripe box [m]
-SEG_HALF_W    = 0.04    # half-width of stripe [m]
-SEG_HALF_H    = 0.001
-SEG_STEP      = 2       # sample every Nth waypoint (reduces geom count)
-HALF_ROAD_W   = 1.75    # corridor half-width [m]
+SEG_HALF_LEN = 0.22  # half-length of each road stripe box [m]
+SEG_HALF_W = 0.04  # half-width of stripe [m]
+SEG_HALF_H = 0.001
+SEG_STEP = 2  # sample every Nth waypoint (reduces geom count)
+HALF_ROAD_W = 1.75  # corridor half-width [m]
 
 
-def _box_geom(name: str, x: float, y: float, heading: float,
-              rgba: str, sx: float, sy: float, sz: float) -> str:
+def _box_geom(
+    name: str,
+    x: float,
+    y: float,
+    heading: float,
+    rgba: str,
+    sx: float,
+    sy: float,
+    sz: float,
+) -> str:
     deg = math.degrees(heading)
     return (
         f'      <geom name="{name}" type="box" '
@@ -35,19 +42,26 @@ def _box_geom(name: str, x: float, y: float, heading: float,
 def build_xml(road: Road, corridor: CorridorLimits) -> str:
     waypoints = road.waypoints
 
-    centre_geoms  = []
-    left_geoms    = []
-    right_geoms   = []
+    centre_geoms = []
+    left_geoms = []
+    right_geoms = []
 
     for i, (wx, wy, wh) in enumerate(waypoints[::SEG_STEP]):
         tag = i * SEG_STEP
 
         if (i % 2) == 0:
-            centre_geoms.append(_box_geom(
-                f"cl_{tag}", wx, wy, wh,
-                "1.0 0.9 0.0 1",
-                SEG_HALF_LEN, SEG_HALF_W, SEG_HALF_H,
-            ))
+            centre_geoms.append(
+                _box_geom(
+                    f"cl_{tag}",
+                    wx,
+                    wy,
+                    wh,
+                    "1.0 0.9 0.0 1",
+                    SEG_HALF_LEN,
+                    SEG_HALF_W,
+                    SEG_HALF_H,
+                )
+            )
 
         # Boundary offsets
         lx = wx - math.sin(wh) * HALF_ROAD_W
@@ -55,22 +69,36 @@ def build_xml(road: Road, corridor: CorridorLimits) -> str:
         rx = wx + math.sin(wh) * HALF_ROAD_W
         ry = wy - math.cos(wh) * HALF_ROAD_W
 
-        left_geoms.append(_box_geom(
-            f"lb_{tag}", lx, ly, wh,
-            "1.0 1.0 1.0 1",
-            SEG_HALF_LEN, SEG_HALF_W, SEG_HALF_H,
-        ))
-        right_geoms.append(_box_geom(
-            f"rb_{tag}", rx, ry, wh,
-            "1.0 1.0 1.0 1",
-            SEG_HALF_LEN, SEG_HALF_W, SEG_HALF_H,
-        ))
+        left_geoms.append(
+            _box_geom(
+                f"lb_{tag}",
+                lx,
+                ly,
+                wh,
+                "1.0 1.0 1.0 1",
+                SEG_HALF_LEN,
+                SEG_HALF_W,
+                SEG_HALF_H,
+            )
+        )
+        right_geoms.append(
+            _box_geom(
+                f"rb_{tag}",
+                rx,
+                ry,
+                wh,
+                "1.0 1.0 1.0 1",
+                SEG_HALF_LEN,
+                SEG_HALF_W,
+                SEG_HALF_H,
+            )
+        )
 
     centre_xml = "".join(centre_geoms)
-    left_xml   = "".join(left_geoms)
-    right_xml  = "".join(right_geoms)
+    left_xml = "".join(left_geoms)
+    right_xml = "".join(right_geoms)
 
-    road_xy  = road.xy_array()
+    road_xy = road.xy_array()
     cx = float(road_xy[:, 0].mean())
     cy = float(road_xy[:, 1].mean())
     xrange = float(road_xy[:, 0].max() - road_xy[:, 0].min())
@@ -176,10 +204,8 @@ def build_xml(road: Road, corridor: CorridorLimits) -> str:
     return xml
 
 
-
-
 if __name__ == "__main__":
-    road     = Road()
+    road = Road()
     corridor = CorridorLimits(road, half_width=HALF_ROAD_W)
 
     print(f"  waypoints    : {len(road.waypoints)}")
@@ -194,9 +220,9 @@ if __name__ == "__main__":
 
     try:
         import mujoco
+
         m = mujoco.MjModel.from_xml_path(str(OUTPUT_PATH))
-        print(f"MuJoCo validation OK  "
-              f"(nbody={m.nbody}, ngeom={m.ngeom})")
+        print(f"MuJoCo validation OK  " f"(nbody={m.nbody}, ngeom={m.ngeom})")
     except Exception as e:
         print(f"MuJoCo validation FAIL: {e}")
         raise

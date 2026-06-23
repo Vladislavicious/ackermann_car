@@ -1,5 +1,3 @@
-
-
 from __future__ import annotations
 
 import math
@@ -40,7 +38,6 @@ class VehicleState:
 class VehicleControl:
     acceleration : float = 0.0   # [m/s²]
     steering     : float = 0.0   # [rad]
-
 
 
 class KinematicBicycleModel:

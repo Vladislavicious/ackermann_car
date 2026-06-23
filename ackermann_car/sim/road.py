@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import math
@@ -8,24 +7,19 @@ import numpy as np
 
 Waypoint = Tuple[float, float, float]
 
+
 def _bezier_cubic(p0, p1, p2, p3, t: float) -> np.ndarray:
 
     t = np.clip(t, 0.0, 1.0)
     u = 1.0 - t
-    return (u**3 * p0
-            + 3 * u**2 * t * p1
-            + 3 * u * t**2 * p2
-            + t**3 * p3)
+    return u**3 * p0 + 3 * u**2 * t * p1 + 3 * u * t**2 * p2 + t**3 * p3
 
 
 def _bezier_cubic_derivative(p0, p1, p2, p3, t: float) -> np.ndarray:
 
     t = np.clip(t, 0.0, 1.0)
     u = 1.0 - t
-    return (3 * u**2 * (p1 - p0)
-            + 6 * u * t * (p2 - p1)
-            + 3 * t**2 * (p3 - p2))
-
+    return 3 * u**2 * (p1 - p0) + 6 * u * t * (p2 - p1) + 3 * t**2 * (p3 - p2)
 
 
 class Road:
@@ -43,7 +37,6 @@ class Road:
         self._arc_lengths: np.ndarray = np.array([])
         self._build()
 
-
     def _build(self) -> None:
 
         pts = self._ctrl
@@ -52,7 +45,6 @@ class Road:
             raise ValueError("Need at least 4 control points for a cubic Bézier.")
 
         waypoints: List[Waypoint] = []
-
 
         seg_starts = list(range(0, n - 1, 3))
 
@@ -70,7 +62,9 @@ class Road:
         p0, p1, p2, p3 = pts[-4], pts[-3], pts[-2], pts[-1]
         xy = _bezier_cubic(p0, p1, p2, p3, 1.0)
         dxy = _bezier_cubic_derivative(p0, p1, p2, p3, 1.0)
-        waypoints.append((float(xy[0]), float(xy[1]), float(math.atan2(dxy[1], dxy[0]))))
+        waypoints.append(
+            (float(xy[0]), float(xy[1]), float(math.atan2(dxy[1], dxy[0])))
+        )
 
         self._waypoints = waypoints
 
@@ -78,7 +72,6 @@ class Road:
         diffs = np.diff(coords, axis=0)
         seg_lens = np.hypot(diffs[:, 0], diffs[:, 1])
         self._arc_lengths = np.concatenate([[0.0], np.cumsum(seg_lens)])
-
 
     @property
     def waypoints(self) -> List[Waypoint]:
@@ -128,29 +121,28 @@ class Road:
         return np.array([(w[0], w[1]) for w in self._waypoints])
 
 
-
 def _default_track() -> List[Tuple[float, float]]:
 
     return [
-        (  0.0,  0.0),# anchor 0
-        (  4.0,  0.0), #cp
-        (  8.0,  3.0), #cp
-        ( 12.0,  3.0), #anchor 1
-        ( 16.0,  3.0), #cp
-        ( 20.0,  0.0),# cp
-        ( 24.0,  0.0), # anchor2
-        ( 28.0,  0.0),# cp
-        ( 32.0, -3.0),# cp
-        ( 36.0, -3.0),  #anchor3
-        ( 40.0, -3.0),# cp
-        ( 44.0,  0.0),# cp
-        ( 48.0,  0.0),# anchor 4
-        ( 52.0,  0.0),# cp
-        ( 56.0,  3.0),# cp
-        ( 60.0,  3.0),  #anchor5
-        ( 64.0,  3.0), #cp
-        ( 68.0,  0.0), #cp
-        ( 72.0,  0.0),  #anchor6
+        (0.0, 0.0),  # anchor 0
+        (4.0, 0.0),  # cp
+        (8.0, 3.0),  # cp
+        (12.0, 3.0),  # anchor 1
+        (16.0, 3.0),  # cp
+        (20.0, 0.0),  # cp
+        (24.0, 0.0),  # anchor2
+        (28.0, 0.0),  # cp
+        (32.0, -3.0),  # cp
+        (36.0, -3.0),  # anchor3
+        (40.0, -3.0),  # cp
+        (44.0, 0.0),  # cp
+        (48.0, 0.0),  # anchor 4
+        (52.0, 0.0),  # cp
+        (56.0, 3.0),  # cp
+        (60.0, 3.0),  # anchor5
+        (64.0, 3.0),  # cp
+        (68.0, 0.0),  # cp
+        (72.0, 0.0),  # anchor6
     ]
 
 

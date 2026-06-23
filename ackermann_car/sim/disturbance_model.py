@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import math
@@ -25,9 +24,7 @@ class DisturbanceModel:
         self._rng = np.random.default_rng(seed)
         self._t0 = time.time()
 
-    def get_disturbance(
-        self, t: float | None = None
-    ) -> Tuple[float, float, float]:
+    def get_disturbance(self, t: float | None = None) -> Tuple[float, float, float]:
 
         if not self.enabled:
             return 0.0, 0.0, 0.0
@@ -37,8 +34,10 @@ class DisturbanceModel:
 
         # Sinusoidal cross-wind (lateral direction dominant)
         wind_y = self.wind_magnitude * math.sin(2 * math.pi * self.wind_frequency * t)
-        wind_x = 0.2 * self.wind_magnitude * math.cos(
-            2 * math.pi * self.wind_frequency * 0.37 * t
+        wind_x = (
+            0.2
+            * self.wind_magnitude
+            * math.cos(2 * math.pi * self.wind_frequency * 0.37 * t)
         )
 
         # Gaussian noise
